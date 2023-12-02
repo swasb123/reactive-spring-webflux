@@ -23,9 +23,13 @@ dependencies {
     //testing
     testImplementation("io.projectreactor:reactor-test:3.4.0")
     testImplementation('org.junit.jupiter:junit-jupiter:5.5.1')
-    testImplementation("org.mockito:mockito-core:3.2.4")
+    testImplementation("org.mockito:mockito-core:4.11.0")
     testImplementation("org.mockito:mockito-junit-jupiter:3.2.4")
 
+}
+
+task wrapper(type: Wrapper){
+    gradleVersion = '6.8'
 }
 
 test {
