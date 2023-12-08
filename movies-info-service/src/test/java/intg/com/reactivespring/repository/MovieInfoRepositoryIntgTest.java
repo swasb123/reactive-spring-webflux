@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataMongoTest
 @ActiveProfiles("test")
@@ -50,13 +51,56 @@ class MovieInfoRepositoryIntgTest {
 
     @Test
     void findById() {
-        var moviesInfoFlux = movieInfoRepository.findById("abc").log();
+        var moviesInfoMono = movieInfoRepository.findById("abc").log();
 
-        StepVerifier.create(moviesInfoFlux)
+        StepVerifier.create(moviesInfoMono)
                 //.expectNextCount(1)
                 .assertNext(movieInfo -> {
                     assertEquals("Dark Knight Rises", movieInfo.getName());
                 })
+                .verifyComplete();
+    }
+
+    @Test
+    void saveMovieInfo() {
+        var moviesInfo = movieInfoRepository.save(new MovieInfo(null, "Batman Begins1",
+                2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15"))).log();
+
+        StepVerifier.create(moviesInfo)
+                //.expectNextCount(1)
+                .assertNext(movie -> {
+                    assertNotNull(movie.getMovieInfoId());
+                    assertEquals("Batman Begins1", movie.getName());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void updateMovieInfo() {
+
+        var movieInfo = movieInfoRepository.findById("abc").block();
+        movieInfo.setYear(2022);
+
+        var moviesInfo = movieInfoRepository.save(movieInfo).log();
+
+        StepVerifier.create(moviesInfo)
+                //.expectNextCount(1)
+                .assertNext(movie -> {
+                    //assertNotNull(movie.getMovieInfoId());
+                    assertEquals(2022, movie.getYear());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void deleteMovieInfo() {
+
+        movieInfoRepository.deleteById("abc").block();
+
+        var movieInfo = movieInfoRepository.findAll().log();
+
+        StepVerifier.create(movieInfo)
+                .expectNextCount(2)
                 .verifyComplete();
     }
 
