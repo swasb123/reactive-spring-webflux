@@ -11,16 +11,16 @@ spring:
     mongodb:
       host: localhost
       port: 27017
-      database: local
+      database: movie-info
 ---
-spring:
-  config:
-    activate:
-      on-profile:
-        - non-prod
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      database: non-prod
+#spring:
+#  config:
+#    activate:
+#      on-profile:
+#        - non-prod
+#  data:
+#    mongodb:
+#      host: localhost
+#      port: 27017
+#      database: movie-info
 
