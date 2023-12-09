@@ -80,4 +80,22 @@ class MoviesInfoControllerIntgTest {
                 .expectBodyList(MovieInfo.class)
                 .hasSize(3);
     }
+
+    @Test
+    void getMovieInfoById() {
+        var movieInfoId = "abc";
+
+        webTestClient
+                .get()
+                .uri(MOVIES_INFO_URL + "/{id}", movieInfoId)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectBody(MovieInfo.class)
+                .consumeWith(data -> {
+                    var movieInfo = data.getResponseBody();
+
+                    assertNotNull(movieInfo);
+                });
+    }
 }
