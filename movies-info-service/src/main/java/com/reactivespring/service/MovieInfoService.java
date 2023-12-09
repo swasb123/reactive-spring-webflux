@@ -43,4 +43,12 @@ public class MovieInfoService {
     public Mono<Void> deleteMovieInfo(String id) {
         return movieInfoRepository.deleteById(id);
     }
+
+    public Flux<MovieInfo> getMovieInfoByYear(Integer year) {
+        return movieInfoRepository.findByYear(year);
+    }
+
+    public Flux<MovieInfo> getMovieInfoByName(String name) {
+        return movieInfoRepository.findByName(name);
+    }
 }

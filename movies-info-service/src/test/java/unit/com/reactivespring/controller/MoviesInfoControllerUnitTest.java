@@ -102,7 +102,7 @@ public class MoviesInfoControllerUnitTest {
     @Test
     void addMovieInfo_validation() {
         var movieInfo = new MovieInfo(null, "",
-                -2005, List.of("Christian Bale", "Michael Cane"), LocalDate.parse("2005-06-15"));
+                -2005, List.of(""), LocalDate.parse("2005-06-15"));
 
         webTestClient
                 .post()
