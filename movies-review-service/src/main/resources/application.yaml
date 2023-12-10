@@ -1,2 +1,13 @@
 server:
   port: 8081
+
+#spring:
+#  data:
+#    mongodb:
+#      host: localhost
+#      port: 27017
+#      database: movie-review
+#spring:
+#  mongodb:
+#    embedded:
+#      version: 4.0.21
