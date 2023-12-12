@@ -1,7 +1,10 @@
 package com.reactivespring.handler;
 
 import com.reactivespring.domain.Review;
+import com.reactivespring.exception.*;
 import com.reactivespring.repository.ReviewRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -9,8 +12,16 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import java.util.stream.Collectors;
+
 @Component
+@Slf4j
 public class ReviewHandler {
+
+    @Autowired
+    private Validator validator;
 
     private ReviewRepository reviewRepository;
 
@@ -27,13 +38,27 @@ public class ReviewHandler {
                     return ServerResponse.status(HttpStatus.CREATED).bodyValue(savedReview);
                 });*/
 
-        /*return request.bodyToMono(Review.class)
+        return request.bodyToMono(Review.class)
+                .doOnNext(this::validate)
                 .flatMap(reviewRepository::save)
-                .flatMap(ServerResponse.status(HttpStatus.CREATED)::bodyValue);*/
+                .flatMap(ServerResponse.status(HttpStatus.CREATED)::bodyValue);
 
-        var savedReview = request.bodyToMono(Review.class)
+        /*var savedReview = request.bodyToMono(Review.class)
                 .flatMap(data -> reviewRepository.save(data));
-        return ServerResponse.status(HttpStatus.CREATED).body(savedReview, Review.class);
+        return ServerResponse.status(HttpStatus.CREATED).body(savedReview, Review.class);*/
+    }
+
+    private void validate(Review review) {
+        var constraintViolation = validator.validate(review);
+        log.info("Contraintvaiolation: {}", constraintViolation);
+        if (!constraintViolation.isEmpty()) {
+            var errorMessage = constraintViolation
+                    .stream()
+                    .map(ConstraintViolation::getMessage)
+                    .sorted()
+                    .collect(Collectors.joining(","));
+            throw new ReviewDataException(errorMessage);
+        }
     }
 
     public Mono<ServerResponse> getReviews(ServerRequest request) {
