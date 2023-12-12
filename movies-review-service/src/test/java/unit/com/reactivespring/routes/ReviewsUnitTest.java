@@ -4,6 +4,8 @@ import com.reactivespring.domain.Review;
 import com.reactivespring.handler.ReviewHandler;
 import com.reactivespring.repository.ReviewRepository;
 import com.reactivespring.router.ReviewRouter;
+import com.reactivespring.exceptionhandler.GlobalErrorHandler;
+import net.bytebuddy.asm.Advice;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -20,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @WebFluxTest
-@ContextConfiguration(classes = {ReviewRouter.class, ReviewHandler.class})
+@ContextConfiguration(classes = {ReviewRouter.class, ReviewHandler.class, GlobalErrorHandler.class})
 @AutoConfigureWebTestClient
 public class ReviewsUnitTest {
 
@@ -55,6 +57,23 @@ public class ReviewsUnitTest {
                     assert savedReview.getReviewId() != null;
 
                 });
+    }
+
+    @Test
+    void addReview_validate() {
+
+        var review = new Review(null, null, "Awesome Movie", -9.0);
+
+        when(reviewRepository.save(isA(Review.class)))
+                .thenReturn(Mono.just(new Review("abc", 1L, "Awesome Movie", 9.0)));
+
+        webTestClient
+                .post()
+                .uri(REVIEW_URL)
+                .bodyValue(review)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
     }
 
     @Test

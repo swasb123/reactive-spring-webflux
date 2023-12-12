@@ -66,6 +66,19 @@ public class ReviewsIntgTest {
     }
 
     @Test
+    void addReview_validation() {
+        var review = new Review(null, null, "Awesome Movie", -9.0);
+
+        webTestClient
+                .post()
+                .uri(REVIEW_URL)
+                .bodyValue(review)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+    }
+
+    @Test
     void getReviews() {
         webTestClient
                 .get()
