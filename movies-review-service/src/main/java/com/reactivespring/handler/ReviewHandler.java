@@ -80,8 +80,20 @@ public class ReviewHandler {
 
     public Mono<ServerResponse> updateReview(ServerRequest request) {
         var reviewId = request.pathVariable("id");
+        /*var existingReview = reviewRepository.findById(reviewId)
+                .switchIfEmpty(Mono.error(new ReviewNotFoundException("Review not found for the given review id " + reviewId)));*/
         var existingReview = reviewRepository.findById(reviewId);
+                //.switchIfEmpty(Mono.error(new ReviewNotFoundException("Review not found for the given review id " + reviewId)));
 
+        /*return existingReview
+                .flatMap(review -> request.bodyToMono(Review.class)
+                        .map(reqReview -> {
+                            review.setComment(reqReview.getComment());
+                            review.setRating(reqReview.getRating());
+                            return review;
+                        })
+                        .flatMap(reviewRepository::save))
+                .flatMap(savedReview -> ServerResponse.ok().bodyValue(savedReview));*/
         return existingReview
                 .flatMap(review -> request.bodyToMono(Review.class)
                         .map(reqReview -> {
@@ -90,7 +102,8 @@ public class ReviewHandler {
                             return review;
                         })
                         .flatMap(reviewRepository::save))
-                .flatMap(savedReview -> ServerResponse.ok().bodyValue(savedReview));
+                .flatMap(savedReview -> ServerResponse.ok().bodyValue(savedReview))
+                .switchIfEmpty(ServerResponse.notFound().build());
 
     }
 

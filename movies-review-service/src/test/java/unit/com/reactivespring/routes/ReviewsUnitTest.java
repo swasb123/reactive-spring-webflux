@@ -73,7 +73,9 @@ public class ReviewsUnitTest {
                 .bodyValue(review)
                 .exchange()
                 .expectStatus()
-                .isBadRequest();
+                .isBadRequest()
+        .expectBody(String.class)
+        .isEqualTo("rating.movieInfoId can not be null,rating.negative : please pass a non-negative value");
     }
 
     @Test
