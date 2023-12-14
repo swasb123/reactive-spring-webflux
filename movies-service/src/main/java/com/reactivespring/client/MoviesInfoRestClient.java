@@ -65,15 +65,11 @@ public class MoviesInfoRestClient {
                 })
                 .onStatus(HttpStatus::is5xxServerError, clientResponse -> {
                     log.error("Status code is: {}", clientResponse.statusCode().value());
-                    if (clientResponse.statusCode().equals(HttpStatus.NOT_FOUND)) {
-                        return Mono.error(
-                                new MoviesInfoServerException(
-                                        "Server exception in the MovieInfoService: {}"));
-                    }
                     return clientResponse.bodyToMono(String.class)
-                            .flatMap(responeMessage -> Mono.error(
-                                    new MoviesInfoClientException(responeMessage, clientResponse.statusCode().value())
-                            ));
+                            .flatMap(responseMessage -> Mono.error(
+                                    new MoviesInfoServerException(
+                                            "Server exception in the MovieInfoService: " + responseMessage))
+                            );
                 })
                 .bodyToMono(MovieInfo.class)
                 .log();
