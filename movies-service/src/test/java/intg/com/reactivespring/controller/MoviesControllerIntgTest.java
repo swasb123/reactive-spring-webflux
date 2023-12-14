@@ -1,5 +1,6 @@
 package com.reactivespring.controller;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.reactivespring.domain.Movie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,8 @@ public class MoviesControllerIntgTest {
                 .is4xxClientError()
                 .expectBody(String.class)
                 .isEqualTo("There is no movie info available for the passed id: abc");
+
+        WireMock.verify(1, getRequestedFor(urlEqualTo("/v1/movieinfos" + "/" + movieId)));
     }
 
     @Test
@@ -122,10 +125,10 @@ public class MoviesControllerIntgTest {
                         .withStatus(500)
                         .withBody("MovieInfo service is unavailable")));
 
-        stubFor(get(urlPathEqualTo("/v1/reviews"))
+       /* stubFor(get(urlPathEqualTo("/v1/reviews"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
-                        .withBodyFile("reviews.json")));
+                        .withBodyFile("reviews.json")));*/
 
         webTestClient
                 .get()
@@ -135,5 +138,7 @@ public class MoviesControllerIntgTest {
                 .is5xxServerError()
                 .expectBody(String.class)
                 .isEqualTo("Server exception in the MovieInfoService: MovieInfo service is unavailable");
+
+        WireMock.verify(4, getRequestedFor(urlEqualTo("/v1/movieinfos" + "/" + movieId)));
     }
 }
