@@ -1,6 +1,7 @@
 package com.reactivespring.client;
 
 import com.reactivespring.config.WebClientConfig;
+import com.reactivespring.domain.Movie;
 import com.reactivespring.domain.MovieInfo;
 import com.reactivespring.exception.MoviesInfoClientException;
 import com.reactivespring.exception.MoviesInfoServerException;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Exceptions;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
@@ -90,4 +92,16 @@ public class MoviesInfoRestClient {
 
     }
 
+    public Flux<MovieInfo> retrieveMovieInfoStream() {
+        var url = moviesInfoUrl.concat("/stream");
+
+        return webClient
+                .get()
+                .uri(url)
+                .retrieve()
+                .bodyToFlux(MovieInfo.class)
+                //.retry(3)
+                .retryWhen(RetryUtil.retrySpec())
+                .log();
+    }
 }
